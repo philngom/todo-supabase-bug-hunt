@@ -3,39 +3,38 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsI
 
 const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-export async function createTodo(){
-    const response = client
+export async function createTodo(todo){
+    const response = await client
         .from('todos')
-        .insert({ 
+        .insert({
             todo: todo,
-            complete: false, 
+            complete: false,
         })
         .single();
-
     return checkError(response);
 }
 
 export async function deleteAllTodos() {
     await client
         .from('todos')
-        .delete()
+        .delete();
 }
 
 export async function getTodos() {
     const response = await client
-        .select()
-        .order('complete')
+        .from('todos')
+        .select();
 
-    return checkError(response);    
+    return checkError(response);
 }
 
 export async function completeTodo(id) {
     const response = await client
         .from('todos')
-        .update({ complete: false })
+        .update({ complete: true })
         .match({ id: id });
 
-    return checkError(response);    
+    return checkError(response);
 }
 
 
@@ -48,7 +47,7 @@ export async function getUser() {
 export async function checkAuth() {
     const user = await getUser();
 
-    if (!user) location.replace('../'); 
+    if (!user) location.replace('../');
 }
 
 export async function redirectIfLoggedIn() {
@@ -59,14 +58,14 @@ export async function redirectIfLoggedIn() {
 
 export async function signupUser(email, password){
     const response = await client.auth.signUp({ email, password });
-    
-    return checkError(response);
+    return response.user;
 }
 
 export async function signInUser(email, password){
     const response = await client.auth.signIn({ email, password });
 
-    return checkError(response);
+    console.log(response);
+    return response.user;
 }
 
 export async function logout() {
